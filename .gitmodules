@@ -1,0 +1,3 @@
+[submodule "brazilianforecastio/Municipios-Brasileiros"]
+	path = brazilianforecastio/Municipios-Brasileiros
+	url = https://github.com/kelvins/Municipios-Brasileiros.git
