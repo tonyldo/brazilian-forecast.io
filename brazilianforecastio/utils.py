@@ -1,3 +1,4 @@
+import requests
 from json import load
 from geopy.distance import distance
 
@@ -23,5 +24,10 @@ def closestStation(myLat, myLon, p_airportStationJsonFile=None):
         newDistance = compareDistancesBetweenStations(myLat,myLon,station['Latitude'],station['Longitude'],theClosestOne[1])
         if  newDistance < theClosestOne[1]:
             theClosestOne = (station,newDistance) 
-    return theClosestOne           
+    return theClosestOne 
+
+def getXMLResponse(requestURL):
+    response = requests.get(requestURL)
+    response.raise_for_status()
+    return response.content
 
