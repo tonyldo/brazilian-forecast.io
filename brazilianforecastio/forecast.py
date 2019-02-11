@@ -1,5 +1,6 @@
 import json
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 class BrazilianForecast():
 
@@ -852,7 +853,6 @@ class BrazilianForecast():
         self.hostNumberForIconUrl = 0
 
     def isNigth(self):
-      from datetime import datetime
       return datetime.strptime(self.conditions['atualizacao'], '%d/%m/%Y %H:%M:%S').hour > 18    
 
     def get_formated_current_situation_URL(self):
@@ -879,6 +879,11 @@ class BrazilianForecast():
       root = ET.fromstring(self.XMLCurrentSituationData)
       for element in root.findall("./*"):
         self.conditions[element.tag] = element.text
+
+    def getLastUpdated(self):
+      if self.XMLCurrentSituationData is None:
+        return None
+      return datetime.strptime(self.conditions['atualizacao'], '%d/%m/%Y %H:%M:%S')
 
     def update(self):
       self.XMLCurrentSituationData = self.getXMLResponse()
