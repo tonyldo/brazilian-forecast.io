@@ -1,12 +1,11 @@
-import threading
-from forecast import BrazilianForecast
+from geopy.distance import distance
+from brazilianforecastio.forecast import BrazilianForecast
 
-def loadCurrentSituation(lat, lng):
-    """
-        lat: The latitude of the forecast
-        lng: The longitude of the forecast
-    """
-    forecast = BrazilianForecast(lat, lng)
-    return forecast.update()
+def loadCurrentSituation(_coordinate,_distance):
+    _forecast = BrazilianForecast(coordinate=_coordinate,distanceFunc=_distance)
+    return _forecast.update_currently()
 
-print (loadCurrentSituation(-10.981991, -37.053559).XMLCurrentSituationData)
+currently = loadCurrentSituation((-10.979357, -37.048752),distance)
+print(currently.current_situation_XML)
+print(currently.get_reading('weather'))
+print(currently.get_formated_icon_URL(_isNight=False))

@@ -1,4 +1,5 @@
 import json
+import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
@@ -12,7 +13,8 @@ class BrazilianForecast():
         'humidity': 'umidade',
         'wind_dir': 'vento_dir',
         'wind_speed': 'vento_int',
-        'visibility': 'visibilidade'
+        'visibility': 'visibilidade',
+        'last_time_updated': 'atualizacao'
     }
 
     airportSationJson = """
@@ -841,75 +843,81 @@ class BrazilianForecast():
     _CURRENT_DATA_URL = 'http://servicos.cptec.inpe.br/XML/estacao/%s/condicoesAtuais.xml'
     _ICON_URL = 'https://s%s.cptec.inpe.br/webcptec/common/assets/images/icones/tempo/icones-grandes/%s.png'
 
-    def __init__(self, station_id=None, coordinate=None, distanceFunc=None, current_data_url=None, icon_url=None, request=None):
+    def __init__(self, station_id=None, coordinate=None, distanceFunc=None, current_data_url=None, icon_url=None, web_session=None):
+        self.airportSationData = json.loads(self.airportSationJson)
         self.coordinate = coordinate
-        self.station_id = station_id
         self.distanceFunc = distanceFunc
-        self.current_data_url = current_data_url
-        self.icon_url = icon_url
-        self.XMLCurrentSituationData = None
-        self.request = request
-        self.conditions = {}
-        self.hostNumberForIconUrl = 0
+        self.validate_parameters(station_id)
+        self.station_id = self.get_valid_station(station_id)
+        self.current_data_url = self._CURRENT_DATA_URL if current_data_url is None else current_data_url
+        self.icon_url = self._ICON_URL if icon_url is None else icon_url
+        self.current_situation_XML = None
+        self.request = requests if web_session is None else web_session
+        self._conditions = {}
+        self.host_number_icon_Url = 0
 
-    def isNigth(self):
-      return datetime.strptime(self.conditions['atualizacao'], '%d/%m/%Y %H:%M:%S').hour > 18    
+    def get_valid_station(self,_station_id=None):
+      if _station_id is not None:
+        try:
+          _station_id in [obj for obj in self.airportSationData if obj['Sigla']==_station_id][0]['Sigla']
+          return _station_id
+        except IndexError:
+          raise ValueError('Invalid Station')
+      return self.closest_station()[0]['Sigla'] 
+
+    def validate_parameters(self,station_id_parameter):
+      if station_id_parameter is None and (self.coordinate is None or self.distanceFunc is None):
+        raise ValueError('Enter a Valid Station or coordinates and Distance Function')
 
     def get_formated_current_situation_URL(self):
-        if self.current_data_url is None:
-          self.current_data_url = self._CURRENT_DATA_URL
-        return self.current_data_url%self.getStationId()
+       return self.current_data_url%self.station_id
 
-    def get_formated_icon_URL(self):
-        if self.XMLCurrentSituationData is None:
-          self.update()
-        if self.icon_url is None:
-           self.icon_url = self._ICON_URL
-        weather_code = self.conditions['tempo']
-        if self.isNigth():
-           weather_code += '_n' 
-        return self.icon_url%(self.hostNumberForIconUrl, weather_code)
-
-    def condition_readings(self,_condition):
-       return self.conditions[self.conditions_reference[_condition]]
-
-    def updateConditions(self, _XMLCurrentSituationData=None):
-      if _XMLCurrentSituationData is not None:
-        self.XMLCurrentSituationData = _XMLCurrentSituationData
-      root = ET.fromstring(self.XMLCurrentSituationData)
-      for element in root.findall("./*"):
-        self.conditions[element.tag] = element.text
-
-    def getLastUpdated(self):
-      if self.XMLCurrentSituationData is None:
+    def test_icon_url(self,weather_code,_isNight_sufix=None):
+      resp = self.request.get(self.icon_url%(self.host_number_icon_Url, weather_code)) 
+      if resp.status_code==200 and _isNight_sufix is None:
+        return resp.url
+      save_resp_url=resp.url
+      if _isNight_sufix is not None:
+        resp = self.request.get(self.icon_url%(self.host_number_icon_Url, weather_code+_isNight_sufix))
+      else:
         return None
-      return datetime.strptime(self.conditions['atualizacao'], '%d/%m/%Y %H:%M:%S')
+      if resp.status_code != 200:
+        return save_resp_url
+      else:
+        return resp.url
+      
+    def get_formated_icon_URL(self, _isNight=False):
+        if self.current_situation_XML is None:
+          return None
+        return self.test_icon_url(self.get_reading('weather'),_isNight_sufix='_n' if _isNight else None)
 
-    def update(self):
-      self.XMLCurrentSituationData = self.getXMLResponse()
-      self.updateConditions()
+    def get_reading(self,_condition):
+       return self._conditions[self.conditions_reference[_condition]]
+
+    def update_readings(self, _current_situation_XML=None):
+      if _current_situation_XML is not None:
+        self.current_situation_XML = _current_situation_XML
+      root = ET.fromstring(self.current_situation_XML)
+      for element in root.findall("./*"):
+        self._conditions[element.tag] = element.text
+
+    def get_last_time_updated(self):
+      if self.current_situation_XML is None:
+        return None
+      return datetime.strptime(self.get_reading('last_time_updated'), '%d/%m/%Y %H:%M:%S')
+      
+    def update_currently(self):
+      self.current_situation_XML = self.request.get(self.get_formated_current_situation_URL()).content
+      self.update_readings()
       return self
 
-    def closestStation(self):
-      airportSationData = json.loads(self.airportSationJson)
-      theClosestOne = airportSationData[0], self.distanceFunc(
-            self.coordinate, (airportSationData[0]['Latitude'], airportSationData[0]['Longitude']))
-      for station in airportSationData:
+    def closest_station(self):
+      theClosestOne = self.airportSationData[0], self.distanceFunc(
+            self.coordinate, (self.airportSationData[0]['Latitude'], self.airportSationData[0]['Longitude']))
+      for station in self.airportSationData:
         newDistance = self.distanceFunc(
           self.coordinate, (station['Latitude'], station['Longitude']))
         if (newDistance<theClosestOne[1]):
           theClosestOne = (station, newDistance)
-      
       return theClosestOne
 
-    def getStationId(self):
-        if self.station_id is None:
-          self.station_id = self.closestStation()[0]['Sigla']
-        return self.station_id
-
-    def getXMLResponse(self):
-      if self.request is None:
-        import requests
-        self.request = requests
-      response = self.request.get(self.get_formated_current_situation_URL())
-      return response.content
