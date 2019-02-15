@@ -878,7 +878,7 @@ class BrazilianCurrentWeather():
                 self.host_number_icon_Url, weather_code))
           if resp.status == 200 and _isNight_sufix is None:
             return self.icon_url % (self.host_number_icon_Url, weather_code)
-          save_resp_url = resp.url
+          save_resp_url = self.icon_url % (self.host_number_icon_Url, weather_code)
           if _isNight_sufix is not None:
             resp = await self.request.get(self.icon_url % (
                 self.host_number_icon_Url, weather_code+_isNight_sufix))
