@@ -1,14 +1,19 @@
+import json
 from geopy.distance import distance
-import requests
-import current
+from brazilianforecastio.current import BrazilianCurrentWeather
 
-def loadCurrentSituation(_coordinate,_distance):
-    _forecast = current.BrazilianCurrentWeather(coordinate=_coordinate,distance_func=_distance,web_session=requests)
-    return _forecast.update_currently()
+def loadCurrentSituationOnMyLocation():
+    _forecast = BrazilianCurrentWeather(coordinate=(-10.979357, -37.048752),distance_func=distance)
+    _forecast.update_current()
+    print(_forecast.current_situation_XML)
+    print(_forecast.get_reading('weather'))
+    print(_forecast.get_formated_icon_URL(_isNight=True))
+
+def whereIsRaining():
+    for station in json.loads(BrazilianCurrentWeather.airport_station_json):
+        statiton_current = BrazilianCurrentWeather(station_id=station['Sigla'],distance_func=distance)
+        statiton_current.update_current()
+        if statiton_current.get_reading('weather')=='c':
+            print(statiton_current.station_id)
 
 
-currently = loadCurrentSituation((-10.979357, -37.048752),distance)
-print(currently.current_situation_XML)
-print(currently.get_reading('weather'))
-currently.host_number_icon_Url = 0
-print(currently.get_formated_icon_URL(_isNight=True))
