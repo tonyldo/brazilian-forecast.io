@@ -881,13 +881,12 @@ class BrazilianCurrentWeather():
                 self.host_number_icon_Url, weather_code))
           if resp.status !=200:
             return None
-          save_resp_url = self.icon_url % (self.host_number_icon_Url, weather_code)
+          save_resp_url = str(resp.url)
           if _isNight_sufix is not None:
              resp = await self.request.get(self.icon_url % (self.host_number_icon_Url, weather_code+_isNight_sufix))
              if resp.status == 200:
-                return self.icon_url % (self.host_number_icon_Url, weather_code+_isNight_sufix)
-          else:
-            return save_resp_url
+                return str(resp.url)
+          return save_resp_url
     
     async def async_get_formated_icon_URL(self, _isNight=False):
         if self.current_situation_XML is None:
@@ -898,14 +897,13 @@ class BrazilianCurrentWeather():
           resp = self.request.get(self.icon_url % (
                 self.host_number_icon_Url, weather_code))
           if resp.status_code !=200:
-            return None
-          save_resp_url = self.icon_url % (self.host_number_icon_Url, weather_code)
+             return None
+          save_resp_url = resp.url
           if _isNight_sufix is not None:
              resp = self.request.get(self.icon_url % (self.host_number_icon_Url, weather_code+_isNight_sufix))
              if resp.status_code == 200:
-                return self.icon_url % (self.host_number_icon_Url, weather_code+_isNight_sufix)
-          else:
-            return save_resp_url
+                return resp.url
+          return save_resp_url
     
     def get_formated_icon_URL(self, _isNight=False):
         if self.current_situation_XML is None:
