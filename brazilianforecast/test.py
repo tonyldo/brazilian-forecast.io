@@ -1,6 +1,6 @@
 import json
 from geopy.distance import distance
-from brazilianforecastio.current import BrazilianCurrentWeather
+from brazilianforecast.current import BrazilianCurrentWeather
 
 def loadCurrentSituationOnMyLocation():
     _forecast = BrazilianCurrentWeather(coordinate=(-10.979357, -37.048752),distance_func=distance)
