@@ -1,8 +1,9 @@
 import json
 from geopy.distance import distance
 
+
 class Station():
-    
+
     airport_station_json = """
 [
   {
@@ -826,8 +827,9 @@ class Station():
   }
 ] """
 
-    def __init__(self,id=None,coordenate=None):
-        station = self.find_station_by_id(id) if id else self.find_station_by_coordenate(coordenate)
+    def __init__(self, id=None, coordenate=None):
+        station = self.find_station_by_id(
+            id) if id else self.find_station_by_coordenate(coordenate)
 
         if station:
             self.id = station['Sigla']
@@ -839,20 +841,20 @@ class Station():
             raise ValueError(
                 'Enter a valid Station or Coordinate')
 
-    def find_station_by_id(self,id=None):
+    def find_station_by_id(self, id=None):
         airport_sation_data = json.loads(self.airport_station_json)
-        station_list = [station for station in airport_sation_data if station['Sigla'] == id]
+        station_list = [
+            station for station in airport_sation_data if station['Sigla'] == id]
         if not station_list:
             return None
         else:
             return station_list[0]
 
-
-    def find_station_by_coordenate(self,coordinate=None):
+    def find_station_by_coordenate(self, coordinate=None):
         if not coordinate:
             return None
         airport_sation_data = json.loads(self.airport_station_json)
-        previous_distance =  None
+        previous_distance = None
         for station in airport_sation_data:
             new_distance = distance(
                 coordinate, (station['Latitude'], station['Longitude']))
@@ -860,4 +862,3 @@ class Station():
                 previous_distance = new_distance
                 closest_station = station
         return closest_station
-
