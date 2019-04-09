@@ -19,7 +19,7 @@ class AsyncBrazilianCurrentWeather(BrazilianCurrentWeather):
         return await self.async_test_icon_url(async_session, self.get_reading('weather'), _isNight_sufix='_n' if _isNight else None)
 
     async def async_update_current(self, async_session, station_id):
-        resp = await async_session.requests.get(
+        resp = await async_session.get(
             self.get_formated_current_situation_URL(station_id))
         self._update_readings(await resp.text())
         return self
