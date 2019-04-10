@@ -1,6 +1,6 @@
 import json
 from geopy.distance import distance
-
+from astral import Location
 
 class Station():
 
@@ -827,6 +827,12 @@ class Station():
   }
 ] """
 
+    _brazilian_timezones = {('AC'): 'Brazil/Acre', 
+                            ('SBFN'): 'Brazil/DeNoronha', 
+                            ('PA', 'AP', 'TO', 'GO', 'DF', 'SP', 'PR', 'SC', 'RS',
+                             'RJ', 'MG', 'ES', 'BA', 'SE', 'AL','PI', 'PE', 'PB', 'RN', 'CE', 'MA'): 'Brazil/East', 
+                            ('AM', 'RO', 'RR', 'MT', 'MS'): 'Brazil/West'}
+
     def __init__(self, id=None, coordenate=None):
         station = self.find_station_by_id(
             id) if id else self.find_station_by_coordenate(coordenate)
@@ -862,3 +868,29 @@ class Station():
                 previous_distance = new_distance
                 closest_station = station
         return closest_station
+
+    def get_time_zone(self):
+      if self.id == 'SBFN':
+        return self._brazilian_timezones[self.id]
+      timezone = [self._brazilian_timezones[key] for key in self._brazilian_timezones.keys() if self.estado in key]
+      return timezone[0]
+    
+    def is_night(self):
+      l=Location(('','',self.latitude, self.longitude,self.get_time_zone(),0))
+      return l.sun()['sunrise']<l.sun()['sunset']
+
+    def set_weather_service(self, weather_service):
+        self.weather_service = weather_service
+        return self
+
+    def get_current_symbol_url(self):
+        return self.weather_service.get_formated_icon_URL(self.weather_service.get_reading('weather'),self.is_night())
+
+    async def async_get_current_symbol_url(self):
+        return await self.weather_service.async_get_formated_icon_URL(self.weather_service.get_reading('weather'),self.is_night())
+
+    def get_current_conditions(self):
+        return self.weather_service.get_current_conditions(self.id)
+
+    async def async_get_current_conditions(self):
+        return await self.weather_service.async_get_current_conditions(self.id)

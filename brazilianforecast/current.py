@@ -1,9 +1,8 @@
 import xml.etree.ElementTree as ET
-from brazilianforecast.station import Station
 import requests
 
 
-class BrazilianCurrentWeather():
+class BrazilianCurrentWeatherService():
 
     conditions_reference = {
         'pressure': 'pressao',
@@ -26,13 +25,6 @@ class BrazilianCurrentWeather():
         self._icon_url = self._ICON_URL if not icon_url else icon_url
         self._conditions = {}
         self._host_number_icon_Url = 0
-
-    def set_station(self, station):
-        self.station = station
-        return self
-
-    def get_station_current_conditions(self):
-        return self.get_current_conditions(self.station.id)
 
     def get_formated_current_situation_URL(self, station_id):
         return self._current_data_url % station_id
@@ -60,6 +52,7 @@ class BrazilianCurrentWeather():
         root = ET.fromstring(current_situation_XML)
         for element in root.findall("./*"):
             self._conditions[element.tag] = element.text
+        return None
 
     def get_current_conditions(self, station_id):
         resp = requests.get(
