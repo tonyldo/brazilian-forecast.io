@@ -10,6 +10,7 @@ async def test_current_station_condition(loop):
      except ClientConnectorError:
          pass
 
+
 async def test_current_station_url_symbol(loop):
     async with ClientSession() as session:
          sbar_station_current_conditions = Station('SBAR').set_weather_service(AsyncBrazilianCurrentWeatherService(session))
@@ -18,6 +19,6 @@ async def test_current_station_url_symbol(loop):
          try:
               url = await sbar_station_current_conditions.async_get_current_symbol_url()
               filename = url[url.rfind('/')+1:]
-              assert 'pc_n' in filename
+              assert 'pc' in filename
          except ClientConnectorError:
               pass

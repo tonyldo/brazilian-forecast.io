@@ -46,6 +46,8 @@ class BrazilianCurrentWeatherService():
         return self.validate_icon_url(weather_code, _isNight_sufix='_n' if _isNight else None)
 
     def get_reading(self, condition):
+        if not self._conditions:
+            return None
         return self._conditions[self.conditions_reference[condition]]
 
     def _update_readings(self, current_situation_XML):

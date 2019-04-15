@@ -58,6 +58,12 @@ def test_current_get_reading():
     assert current.get_reading('weather') == current._conditions['tempo']
     assert current.get_reading('pressure') == current._conditions['pressao']
 
+def test_current_get_reading_key_error():
+    current = BrazilianCurrentWeatherService()
+    current._update_readings("<?xml version='1.0' encoding='ISO-8859-1'?><metar><codigo>SBAR</codigo><atualizacao>07/04/2019 13:00:00</atualizacao><pressao>1014</pressao><temperatura>29</temperatura><tempo>pn</tempo><tempo_desc>Parcialmente Nublado</tempo_desc><umidade>62</umidade><vento_dir>110</vento_dir><vento_int>20</vento_int><visibilidade>>10000</visibilidade></metar>")
+    with pytest.raises(KeyError):
+        assert current.get_reading('temperatura')
+
 def test_current_update():
     current = BrazilianCurrentWeatherService()
     current._update_readings("<?xml version='1.0' encoding='ISO-8859-1'?><metar><codigo>SBAR</codigo><atualizacao>07/04/2019 13:00:00</atualizacao><pressao>1014</pressao><temperatura>29</temperatura><tempo>pn</tempo><tempo_desc>Parcialmente Nublado</tempo_desc><umidade>62</umidade><vento_dir>110</vento_dir><vento_int>20</vento_int><visibilidade>>10000</visibilidade></metar>")
@@ -79,6 +85,6 @@ def test_current_station_url_symbol():
     try:
         url = sbar_station_current_conditions.get_current_symbol_url()
         filename = url[url.rfind('/')+1:]
-        assert 'pc_n' in filename
+        assert 'pc' in filename
     except ConnectionError:
         pass
