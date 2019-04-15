@@ -1,20 +1,20 @@
 *******************
-#Brazilian Forecast
+# Brazilian Forecast
 *******************
 
 Friendly Python API for Brazilian Forecast powered by CPTE-INPE Data (http://servicos.cptec.inpe.br/XML/) .
 
-##Installation
+## Installation
 
 You should use pip to install brazilian-forecastio.
 
 * To install pip install brazilian-forecastio
 * To remove pip uninstall pbrazilian-forecastio
 
-##Requirements
+## Requirements
 * Python 3.X
 
-Basic Use
+## Basic Use
 
 ```
 import brazilianforecast
