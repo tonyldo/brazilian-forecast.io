@@ -1,13 +1,13 @@
 # Brazilian Forecast
 
-Friendly Python API for Brazilian Forecast powered by CPTE-INPE Data (http://servicos.cptec.inpe.br/XML/) .
+Friendly Python API for Brazilian Forecast powered by CPTEC-INPE Data (http://servicos.cptec.inpe.br/XML/) .
 
 ## Installation
 
 You should use pip to install brazilian-forecastio.
 
 * To install pip install brazilian-forecastio
-* To remove pip uninstall pbrazilian-forecastio
+* To remove pip uninstall brazilian-forecastio
 
 ## Requirements
 * Python 3.X
@@ -17,9 +17,26 @@ You should use pip to install brazilian-forecastio.
 ```
 import brazilianforecast
 
-current_conditions = brazilianforecast.load_current(-10.979968, -37.055018)
-current_conditions.get_reading('weather')
+if __name__ == "__main__":
+    current_conditions = brazilianforecast.load_current(-10.979968, -37.055018)
+    print(current_conditions.get_reading('temperature'))
 ``` 
+or async call like:
+
+```
+import aiohttp
+import asyncio
+import brazilianforecast
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        current_conditions = await brazilianforecast.async_load_current(-10.979968, -37.055018,session)
+        print(current_conditions.get_reading('wind_speed'))
+       
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+```
 
 The ``get_reading()`` method has a few optional parameters:
 

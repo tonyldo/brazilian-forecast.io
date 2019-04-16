@@ -10,6 +10,13 @@ async def test_current_station_condition(loop):
      except ClientConnectorError:
          pass
 
+async def test_current_station_condition_status_code_not_200(loop):
+     try:
+          async with ClientSession() as session:
+               sbar_station_current_conditions = await AsyncBrazilianCurrentWeatherService(session).async_get_current_conditions('SBA9')
+          assert not sbar_station_current_conditions
+     except ClientConnectorError:
+         pass
 
 async def test_current_station_url_symbol(loop):
     async with ClientSession() as session:

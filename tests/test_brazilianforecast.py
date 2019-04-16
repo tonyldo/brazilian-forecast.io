@@ -36,7 +36,7 @@ def test_station_get_time_zone():
         st = Station(station['sigla'])
         assert st.get_time_zone() == 'Brazil/East'
 
-def test_get_current_conditions():
+def test_get_current_conditions_status_code_not_200():
     current = BrazilianCurrentWeatherService()
     try:
         assert not current.get_current_conditions('SBA9')

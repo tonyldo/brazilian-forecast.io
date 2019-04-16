@@ -25,5 +25,7 @@ class AsyncBrazilianCurrentWeatherService(BrazilianCurrentWeatherService):
     async def async_get_current_conditions(self, station_id):
         resp = await self.async_session.get(
             self.get_formated_current_situation_URL(station_id))
+        if resp.status != 200:
+            return None    
         self._update_readings(await resp.text())
         return self
