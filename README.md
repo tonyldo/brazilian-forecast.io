@@ -51,6 +51,8 @@ The ``get_reading()`` method has a few optional parameters:
 * ``last_time_updated``
 * ``station_code``
 
+
 <figure class="video_container">
-<iframe src="https://s0.cptec.inpe.br/webcptec/common/legenda.html"></iframe>
+  <iframe src="https://s0.cptec.inpe.br/webcptec/common/legenda.html"> </iframe>
 </figure>
+
