@@ -7,7 +7,7 @@ setuptools.setup(
     author_email='tonyldo@gmail.com',
     packages=['brazilianforecast'],
     url='http://pypi.python.org/pypi/BrazilianForecastIO/',
-    license='LICENSE',
+    license='LICENSE.txt',
     description='Friendly Python API for Brazilian Forecast powered by CPTEC-INPE.',
     long_description=open('README.md').read(),
     install_requires=[
