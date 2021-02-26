@@ -1,4 +1,4 @@
-aiohttp==3.5.4
+aiohttp==3.7.4
 geopy==1.19.0
 pytest==4.4.0
 pytest-aiohttp==0.3.0
